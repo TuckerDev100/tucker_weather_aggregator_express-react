@@ -12,6 +12,8 @@ app.use(cors());
 // Use the location route
 app.use('/location', locationRoute);
 
+app.get('/weather',)
+
 // Start the server
 const PORT = 3300;
 app.listen(PORT, () => {
