@@ -1,27 +1,19 @@
+require("dotenv").config();
 const express = require('express');
-const axios = require('axios');
 const cors = require('cors');
+const locationRoute = require('./routes/locationRoute'); // Update the
 
 const app = express();
+
+// Configure middleware
 app.use(express.json());
 app.use(cors());
 
-app.get('/weather/:city', async(req, res)=>{
-    const city = req.params.city;
-    try {
-        const response = await axios.get(`https://wttr.in/${city}?format=%C+%t+%w+%m`);
-        const weatherResult = response.data;
+// Use the location route
+app.use('/location', locationRoute);
 
-        console.log({result:weatherResult});
-
-        res.send({result:weatherResult});
-    } catch(err){
-        res.status(404).json({error:"Location Not Found + err"});
-    }
+// Start the server
+const PORT = 3300;
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
 });
-
-app.listen(3300, ()=> {
-    console.log("Server is running")
-})
-
-module.exports = {app};
