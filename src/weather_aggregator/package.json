@@ -1,0 +1,35 @@
+{
+  "name": "generac_test_express",
+  "version": "1.0.0",
+  "description": "Assesment for Generac",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "build": "babel src -d dist",
+    "test": "mocha 'test/**/*.{spec,test}.js'",
+    "coverage": "nyc npm run test"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "chai": "^4.3.4",
+    "chai-http": "^4.3.0",
+    "cors": "^2.8.5",
+    "decimal.js": "^10.4.3",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "xml2js": "^0.6.2"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.23.0",
+    "@babel/core": "^7.23.2",
+    "@babel/preset-env": "^7.23.2",
+    "chai-http": "^4.4.0",
+    "sinon": "^17.0.0",
+    "sinon-chai": "^3.7.0",
+    "supertest": "^6.3.3"
+  }
+}
