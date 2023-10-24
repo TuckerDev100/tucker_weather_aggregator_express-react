@@ -1,6 +1,6 @@
 const Decimal = require('decimal.js');
 
-function truncateCoordinates(data) {
+function truncateGeoData(data) {
   if (data && typeof data.lat === 'number' && typeof data.lng === 'number') {
     const truncatedData = {
       lat: new Decimal(data.lat).toDecimalPlaces(4).toNumber(),
@@ -12,4 +12,4 @@ function truncateCoordinates(data) {
   }
 }
 
-module.exports = { truncateCoordinates };
+module.exports = { truncateGeoData };
