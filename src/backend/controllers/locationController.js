@@ -1,6 +1,7 @@
 const axios = require('axios');
 const { truncateGeoData } = require('../helpers/truncateGeoData');
-const { decimalToAbsInt } = require('../helpers/decimalToAbsInt'); // Import the decimalToAbsInt helper
+const { decimalToAbsInt } = require('../helpers/decimalToAbsInt.js'); // Import the decimalToAbsInt helper
+const { dailyHighLows } = require('../helpers/dailyHighLows');
 
 const getLocation = async (req, res) => {
   const { zip } = req.params;
@@ -13,15 +14,17 @@ const getLocation = async (req, res) => {
     if (locationResult.status === 'OK') {
       const { lat, lng } = locationResult.results[0].geometry.location;
       const truncatedCoordinates = truncateGeoData({ lat, lng });
-
-      const jsonResponse = {
-        latitude: truncatedCoordinates.lat,
-        longitude: truncatedCoordinates.lng,
-      };
+      const intCoords = decimalToAbsInt({ lat, lng });
 
       const gridId = await getStationId(locationResult);
 
-      const
+      const hourlyTemps = await getHourlyData(gridId, [intCoords.lat, intCoords.lng]);
+
+      const dailyTempRanges = dailyHighLows(hourlyTemps);
+  
+      const jsonResponse = {
+        dailyTempRanges
+      };
 
       res.status(200).json(jsonResponse);
     } else {
@@ -54,8 +57,40 @@ const getStationId = async (locationResult) => {
   }
 };
 
-const getHistory = async (lat, lng, gridId) => {
+const getHourlyData = async (gridId, intCoords) => {
+  try {
+    const [x, y] = intCoords;
+    const hourlyDataUrl = `https://api.weather.gov/gridpoints/${gridId}/${x},${y}/forecast/hourly`;
 
+    const hourlyResponse = await axios.get(hourlyDataUrl);
+    const hourlyData = hourlyResponse.data;
+
+    const dailyWeather = {}; // Initialize the dailyWeather hashmap
+
+    if (hourlyData.properties && hourlyData.properties.periods) {
+      const hourlyPeriods = hourlyData.properties.periods;
+
+      // Iterate through the hourly periods and organize data by day
+      hourlyPeriods.forEach((period) => {
+        const date = period.startTime.substr(0, 10); // Extract the date portion
+
+        // If the date is not in the dailyWeather hashmap, create a new entry
+        if (!dailyWeather[date]) {
+          dailyWeather[date] = [];
+        }
+
+        // Add the temperature value to the corresponding day
+        dailyWeather[date].push(period.temperature);
+      });
+    } else {
+      console.error('Hourly weather data not found in response');
+    }
+
+    return dailyWeather;
+  } catch (error) {
+    console.error('Error in getHourlyData:', error);
+    return {};
+  }
 };
 
 module.exports = { getLocation };
